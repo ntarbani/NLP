@@ -1,0 +1,34 @@
+!pip install tensorflow_text
+
+import numpy as np
+import os
+import pandas as pd
+import tensorflow.compat.v2 as tf
+import tensorflow_hub as hub
+from tensorflow_text import SentencepieceTokenizer
+import sklearn.metrics.pairwise
+
+module_url = 'https://tfhub.dev/google/universal-sentence-encoder-multilingual/3' #@param ['https://tfhub.dev/google/universal-sentence-encoder-multilingual/3', 'https://tfhub.dev/google/universal-sentence-encoder-multilingual-large/3']
+
+model = hub.load(module_url)
+
+import pandas as pd
+import gc
+
+data = pd.read_csv('/content/drive/MyDrive/InfoDesk/cleaned_titles_new.csv')
+data=data[['Title','Story']]
+len(data)
+
+embedded=model(data['Title'])
+
+embedded.shape
+
+from scipy.cluster import  hierarchy
+
+threshold = 0.779
+Z = hierarchy.linkage(embedded,"average", metric="cosine")
+C = hierarchy.fcluster(Z, threshold, criterion="distance")
+
+max(C)
+data['Clusters'] = pd.DataFrame(C, index=data.index)
+data.to_csv('/content/drive/MyDrive/InfoDesk/USE_Hier_new.csv')
